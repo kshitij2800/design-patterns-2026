@@ -22,8 +22,9 @@ config.set_main_option("sqlalchemy.url", settings.database_url)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# No ORM models yet — Phase 2 will set this
-target_metadata = None
+from infrastructure.db import Base
+import infrastructure.persistence.models  # noqa: F401 — registers DeviceRow with Base
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
