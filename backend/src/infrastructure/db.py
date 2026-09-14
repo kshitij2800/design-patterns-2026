@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
-
+from collections.abc import Generator
 from infrastructure.settings import settings
 
 engine = create_engine(settings.database_url, pool_pre_ping=True)
@@ -19,3 +19,10 @@ def check_db() -> str:
         return "ok"
     except Exception:
         return "fail"
+
+def get_db() -> Generator:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

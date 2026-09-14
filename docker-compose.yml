@@ -26,6 +26,7 @@ services:
     volumes:
       - ./backend/src:/app/src
       - ./backend/alembic:/app/alembic
+      - ./backend/tests:/app/tests
     depends_on:
       postgres:
         condition: service_healthy
