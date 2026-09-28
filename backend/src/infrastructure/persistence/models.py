@@ -21,7 +21,13 @@ class DeviceRow(Base):
         nullable=False,
         server_default=text("now()"),
     )
+    device_family: Mapped[str] = mapped_column(        
+        String(32),
+        nullable=False,
+        server_default=text("'simulation'"),
+    )
 
     __table_args__ = (
         Index("ix_devices_role", "role"),
+        Index("ix_devices_family", "device_family"),   
     )

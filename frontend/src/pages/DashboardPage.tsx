@@ -1,4 +1,5 @@
 import SensorList from "../features/sensors/SensorList";
+import DeviceList from "../features/devices/DeviceList";
 
 const placeholders = [
   { id: "config", label: "Configuration" },
@@ -14,6 +15,11 @@ export default function DashboardPage() {
       <div id="sensors" className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-sm font-medium text-slate-500 mb-4">Sensors</h2>
         <SensorList />
+      </div>
+
+      <div id="devices" className="bg-white rounded-xl border border-slate-200 p-6">
+        <h2 className="text-sm font-medium text-slate-500 mb-4">Devices</h2>
+      <DeviceList />
       </div>
 
       {placeholders.map((p) => (

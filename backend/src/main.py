@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from scalar_fastapi import get_scalar_api_reference
+from interfaces.api.devices import router as devices_router
 
 from infrastructure.settings import settings
 from interfaces.api.health import router as health_router
@@ -26,6 +27,7 @@ app.add_middleware(
 # Routers
 app.include_router(health_router)
 app.include_router(sensors_router)
+app.include_router(devices_router)
 
 # Discovery root
 @app.get("/", include_in_schema=False)
