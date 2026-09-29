@@ -4,9 +4,6 @@ from uuid import UUID
 from domain.devices.entity import Device
 from domain.sensors.creators import MoistureSensorCreator, LightSensorCreator
 
-
-# ── helpers ──────────────────────────────────────────────────────────────────
-
 def _sensor_to_device(sensor_type: str, display_name: str, config: dict, family: str) -> Device:
     """Convert a sensor creator's output fields into a unified Device."""
     return Device(
@@ -31,8 +28,6 @@ def _make_actuator(device_type: str, display_name: str, config: dict, family: st
     )
 
 
-# ── abstract factory ──────────────────────────────────────────────────────────
-
 class DeviceFamilyFactory(ABC):
     @property
     @abstractmethod
@@ -42,7 +37,6 @@ class DeviceFamilyFactory(ABC):
     def create_device_set(self) -> list[Device]: ...
 
 
-# ── simulation family ─────────────────────────────────────────────────────────
 
 class SimulationDeviceFactory(DeviceFamilyFactory):
     @property
@@ -74,7 +68,6 @@ class SimulationDeviceFactory(DeviceFamilyFactory):
         ]
 
 
-# ── edge family ───────────────────────────────────────────────────────────────
 
 class EdgeHardwareFactory(DeviceFamilyFactory):
     @property
@@ -105,8 +98,6 @@ class EdgeHardwareFactory(DeviceFamilyFactory):
             _make_actuator("grow_light", "Edge Grow Light", {"protocol": "gpio-stub", "pin": 18}, family),
         ]
 
-
-# ── registry ──────────────────────────────────────────────────────────────────
 
 _FACTORIES: dict[str, DeviceFamilyFactory] = {
     "simulation": SimulationDeviceFactory(),

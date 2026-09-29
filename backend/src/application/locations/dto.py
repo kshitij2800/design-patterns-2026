@@ -9,9 +9,6 @@ class ZoneRequestDto(BaseModel):
     moisture_threshold_high: float = Field(ge=0.0, le=1.0)
     schedule: dict = Field(default_factory=dict)
 
-class ZoneAssignmentRequestDto(BaseModel):
-    zone_id: UUID | None
-
 class LocationConfigRequestDto(BaseModel):
     location_name: str
     zones: list[ZoneRequestDto]
@@ -38,3 +35,6 @@ class LocationSummaryDto(BaseModel):
 class LocationConfigReadDto(BaseModel):
     location: LocationSummaryDto
     zones: list[ZoneReadDto]
+
+class ZoneAssignmentRequestDto(BaseModel):
+    zone_id: UUID | None

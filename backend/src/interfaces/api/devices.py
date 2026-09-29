@@ -1,12 +1,12 @@
 from __future__ import annotations
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from application.devices.dto import DeviceDto
 from application.devices.mappers import devices_to_dtos
 from application.devices.family_service import DeviceFamilyService
-from infrastructure.db import get_db
-from infrastructure.persistence.device_repository import DeviceRepository
-from uuid import UUID
 from application.locations.dto import ZoneAssignmentRequestDto
 from application.locations.zone_assignment_service import (
     ZoneAssignmentService,
@@ -14,12 +14,17 @@ from application.locations.zone_assignment_service import (
     ZoneNotFoundError,
 )
 from infrastructure.db import get_db
+from infrastructure.persistence.device_repository import DeviceRepository
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
 
 
 def get_service(db: Session = Depends(get_db)) -> DeviceFamilyService:
     return DeviceFamilyService(DeviceRepository(db))
+
+
+def get_assignment_service(db: Session = Depends(get_db)) -> ZoneAssignmentService:
+    return ZoneAssignmentService(db)
 
 
 @router.get("", response_model=list[DeviceDto])
@@ -43,10 +48,8 @@ def provision_family(
         raise HTTPException(status_code=400, detail=str(e))
     return devices_to_dtos(devices)
 
-def get_assignment_service(db: Session = Depends(get_db)) -> ZoneAssignmentService:
-    return ZoneAssignmentService(db)
 
-router.patch("/{device_id}/zone", status_code=200)
+@router.patch("/{device_id}/zone")
 def assign_zone(
     device_id: UUID,
     body: ZoneAssignmentRequestDto,
@@ -54,6 +57,8 @@ def assign_zone(
 ):
     try:
         service.assign(device_id, body.zone_id)
-    except (DeviceNotFoundError, ZoneNotFoundError) as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except DeviceNotFoundError:
+        raise HTTPException(status_code=404, detail="Device not found")
+    except ZoneNotFoundError:
+        raise HTTPException(status_code=404, detail="Zone not found")
     return {"device_id": str(device_id), "zone_id": str(body.zone_id) if body.zone_id else None}
