@@ -6,6 +6,14 @@ from application.devices.mappers import devices_to_dtos
 from application.devices.family_service import DeviceFamilyService
 from infrastructure.db import get_db
 from infrastructure.persistence.device_repository import DeviceRepository
+from uuid import UUID
+from application.locations.dto import ZoneAssignmentRequestDto
+from application.locations.zone_assignment_service import (
+    ZoneAssignmentService,
+    DeviceNotFoundError,
+    ZoneNotFoundError,
+)
+from infrastructure.db import get_db
 
 router = APIRouter(prefix="/api/devices", tags=["devices"])
 
@@ -34,3 +42,18 @@ def provision_family(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return devices_to_dtos(devices)
+
+def get_assignment_service(db: Session = Depends(get_db)) -> ZoneAssignmentService:
+    return ZoneAssignmentService(db)
+
+router.patch("/{device_id}/zone", status_code=200)
+def assign_zone(
+    device_id: UUID,
+    body: ZoneAssignmentRequestDto,
+    service: ZoneAssignmentService = Depends(get_assignment_service),
+):
+    try:
+        service.assign(device_id, body.zone_id)
+    except (DeviceNotFoundError, ZoneNotFoundError) as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return {"device_id": str(device_id), "zone_id": str(body.zone_id) if body.zone_id else None}
