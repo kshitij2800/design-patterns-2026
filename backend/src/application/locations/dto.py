@@ -5,8 +5,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class ZoneRequestDto(BaseModel):
     name: str
-    moisture_threshold_low: float = Field(ge=0.0, le=1.0)
-    moisture_threshold_high: float = Field(ge=0.0, le=1.0)
+    moisture_threshold_low: float
+    moisture_threshold_high: float
     schedule: dict = Field(default_factory=dict)
 
 class LocationConfigRequestDto(BaseModel):
