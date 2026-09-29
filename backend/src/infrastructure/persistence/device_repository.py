@@ -13,6 +13,8 @@ def _row_to_device(row: DeviceRow) -> Device:
         device_family=row.device_family,
         display_name=row.display_name or "",
         default_config=row.default_config,
+        zone_id=UUID(row.zone_id) if row.zone_id else None,
+        location_id=UUID(row.location_id) if row.location_id else None,
     )
 
 
