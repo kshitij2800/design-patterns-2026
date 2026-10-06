@@ -54,17 +54,17 @@ class SimulationDeviceFactory(DeviceFamilyFactory):
             _sensor_to_device(
                 moisture.device_type,
                 moisture.display_name,
-                {**moisture.default_config, "protocol": "sim"},
+                {**moisture.default_config, "protocol": "simulation"},
                 family,
             ),
             _sensor_to_device(
                 light.device_type,
                 light.display_name,
-                {**light.default_config, "protocol": "sim"},
+                {**light.default_config, "protocol": "simulation"},
                 family,
             ),
-            _make_actuator("water_pump",  "Sim Irrigation Pump", {"protocol": "sim", "flow_rate_lph": 12}, family),
-            _make_actuator("grow_light",  "Sim Grow Light",      {"protocol": "sim", "spectrum": "full"}, family),
+            _make_actuator("water_pump",  "Sim Irrigation Pump", {"protocol": "simulation", "flow_rate_lph": 12}, family),
+            _make_actuator("grow_light",  "Sim Grow Light",      {"protocol": "simulation", "spectrum": "full"}, family),
         ]
 
 
@@ -85,17 +85,17 @@ class EdgeHardwareFactory(DeviceFamilyFactory):
             _sensor_to_device(
                 moisture.device_type,
                 moisture.display_name,
-                {**moisture.default_config, "protocol": "gpio-stub"},
+                {**moisture.default_config, "protocol": "mqtt"},
                 family,
             ),
             _sensor_to_device(
                 light.device_type,
                 light.display_name,
-                {**light.default_config, "protocol": "gpio-stub"},
+                {**light.default_config, "protocol": "mqtt"},
                 family,
             ),
-            _make_actuator("water_pump", "Edge Pump",       {"protocol": "gpio-stub", "pin": 17}, family),
-            _make_actuator("grow_light", "Edge Grow Light", {"protocol": "gpio-stub", "pin": 18}, family),
+            _make_actuator("water_pump", "Edge Pump",       {"protocol": "mqtt", "pin": 17}, family),
+            _make_actuator("grow_light", "Edge Grow Light", {"protocol": "mqtt", "pin": 18}, family),
         ]
 
 

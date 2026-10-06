@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
     cors_origins: str = "http://localhost:5173"
+    sampler_enabled: bool = True
 
     model_config = SettingsConfigDict(
         env_file=".env",

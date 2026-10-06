@@ -1,3 +1,6 @@
+import asyncio
+from contextlib import asynccontextmanager, suppress
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -8,8 +11,23 @@ from interfaces.api.locations import router as locations_router
 from infrastructure.settings import settings
 from interfaces.api.health import router as health_router
 from interfaces.api.sensors import router as sensors_router
+from interfaces.background.sampler_loop import run_sampler_forever
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = None
+    if settings.sampler_enabled:
+        task = asyncio.create_task(run_sampler_forever())
+    yield
+    if task is not None:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title="Smart Greenhouse API",
     version="0.1.0",
     docs_url=None,

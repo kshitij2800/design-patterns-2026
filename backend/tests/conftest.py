@@ -19,6 +19,9 @@ TEST_URL = _base_url.set(database=TEST_DB_NAME).render_as_string(hide_password=F
 # Point the app at the test database before infrastructure.db creates its engine.
 settings.database_url = TEST_URL
 os.environ["DATABASE_URL"] = TEST_URL
+settings.database_url = TEST_URL
+os.environ["DATABASE_URL"] = TEST_URL
+settings.sampler_enabled = False
 
 
 @pytest.fixture(scope="session")

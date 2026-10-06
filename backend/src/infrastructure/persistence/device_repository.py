@@ -15,6 +15,8 @@ def _row_to_device(row: DeviceRow) -> Device:
         default_config=row.default_config,
         zone_id=UUID(row.zone_id) if row.zone_id else None,
         location_id=UUID(row.location_id) if row.location_id else None,
+        sampling_interval_seconds=row.sampling_interval_seconds,
+        tracking_enabled=row.tracking_enabled,
     )
 
 
@@ -61,6 +63,33 @@ class DeviceRepository:
             query = query.filter(DeviceRow.role == role)
         return [_row_to_device(row) for row in query.all()]
 
+    # ---- Phase 5 ----
+
+    def get_device(self, device_id: UUID) -> Device | None:
+        row = self._session.get(DeviceRow, str(device_id))
+        return _row_to_device(row) if row else None
+
+    def list_tracked_sensors(self) -> list[Device]:
+        """Sensors with tracking on (protocol filtering happens in the sampler)."""
+        rows = (
+            self._session.query(DeviceRow)
+            .filter(DeviceRow.role == "sensor", DeviceRow.tracking_enabled.is_(True))
+            .all()
+        )
+        return [_row_to_device(row) for row in rows]
+
+    def update_sampling(
+        self, device_id: UUID, interval_seconds: int, tracking_enabled: bool
+    ) -> Device | None:
+        row = self._session.get(DeviceRow, str(device_id))
+        if row is None:
+            return None
+        row.sampling_interval_seconds = interval_seconds
+        row.tracking_enabled = tracking_enabled
+        self._session.commit()
+        self._session.refresh(row)
+        return _row_to_device(row)
+
     def save_sensor(self, sensor) -> object:
         from domain.sensors.entity import Sensor
         row = DeviceRow(
@@ -78,6 +107,8 @@ class DeviceRepository:
             device_type=row.device_type,
             display_name=row.display_name or "",
             default_config=row.default_config,
+            sampling_interval_seconds=row.sampling_interval_seconds,
+            tracking_enabled=row.tracking_enabled,
         )
 
     def list_sensors(self) -> list[object]:
@@ -93,6 +124,8 @@ class DeviceRepository:
                 device_type=row.device_type,
                 display_name=row.display_name or "",
                 default_config=row.default_config,
+                sampling_interval_seconds=row.sampling_interval_seconds,
+                tracking_enabled=row.tracking_enabled,
             )
             for row in rows
         ]
