@@ -30,6 +30,8 @@ export interface SensorDto {
   device_type: string;
   display_name: string;
   default_config: Record<string, unknown>;
+  sampling_interval_seconds: number;
+  tracking_enabled: boolean;
 }
 
 export async function fetchSensors(): Promise<SensorDto[]> {
@@ -189,4 +191,50 @@ export async function assignDeviceZone(deviceId: string, zoneId: string | null):
     body: JSON.stringify({ zone_id: zoneId }),
   });
   if (!res.ok) throw await readError(res, "Could not assign zone.");
+}
+
+// ---- Phase 5: readings & sampling ----
+
+export interface ReadingDto {
+  device_id: string;
+  value: number;
+  unit: string;
+  source: string; // "simulation" | "mqtt" | "vendor"
+  recorded_at: string;
+}
+
+export interface SamplingDto {
+  device_id: string;
+  sampling_interval_seconds: number;
+  tracking_enabled: boolean;
+}
+
+export async function readSensorNow(sensorId: string): Promise<ReadingDto> {
+  const res = await fetch(`${API_BASE}/api/sensors/${sensorId}/read`, { method: "POST" });
+  if (!res.ok) throw await readError(res, "Could not read sensor.");
+  return res.json();
+}
+
+export async function fetchLatestReading(sensorId: string): Promise<ReadingDto | null> {
+  const res = await fetch(`${API_BASE}/api/sensors/${sensorId}/readings?limit=1`);
+  if (!res.ok) throw await readError(res, "Could not load readings.");
+  const rows: ReadingDto[] = await res.json();
+  return rows[0] ?? null;
+}
+
+export async function updateSampling(
+  deviceId: string,
+  samplingIntervalSeconds: number,
+  trackingEnabled: boolean
+): Promise<SamplingDto> {
+  const res = await fetch(`${API_BASE}/api/devices/${deviceId}/sampling`, {
+    method: "PATCH",
+    headers: JSON_HEADERS,
+    body: JSON.stringify({
+      sampling_interval_seconds: samplingIntervalSeconds,
+      tracking_enabled: trackingEnabled,
+    }),
+  });
+  if (!res.ok) throw await readError(res, "Could not update sampling.");
+  return res.json();
 }

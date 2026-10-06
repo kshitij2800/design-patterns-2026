@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchSensors, createSensor, type SensorDto } from "../../services/api";
+import SensorCard from "./SensorCard";
 
 export default function SensorList() {
   const [sensors, setSensors] = useState<SensorDto[]>([]);
@@ -54,13 +55,7 @@ export default function SensorList() {
       )}
 
       {sensors.map((s) => (
-        <div key={s.id} className="border rounded p-3 text-sm space-y-1">
-          <div className="font-medium">{s.display_name}</div>
-          <div className="text-gray-500">{s.device_type}</div>
-          <div className="text-gray-400 text-xs font-mono">
-            {JSON.stringify(s.default_config)}
-          </div>
-        </div>
+        <SensorCard key={s.id} sensor={s} />
       ))}
     </div>
   );
