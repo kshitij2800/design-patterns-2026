@@ -19,8 +19,7 @@ TEST_URL = _base_url.set(database=TEST_DB_NAME).render_as_string(hide_password=F
 # Point the app at the test database before infrastructure.db creates its engine.
 settings.database_url = TEST_URL
 os.environ["DATABASE_URL"] = TEST_URL
-settings.database_url = TEST_URL
-os.environ["DATABASE_URL"] = TEST_URL
+# Phase 5: tests drive the sampler by hand with a fake clock — no background loop.
 settings.sampler_enabled = False
 
 
@@ -51,6 +50,20 @@ def client(migrated_db):
     from main import app
 
     with engine.begin() as conn:
-        conn.execute(text("TRUNCATE locations, zones, devices CASCADE"))
+        conn.execute(text("TRUNCATE sensor_readings, locations, zones, devices CASCADE"))
     with TestClient(app) as c:
         yield c
+
+
+@pytest.fixture
+def db_session(migrated_db):
+    """A clean DB session for service-level tests (no HTTP)."""
+    from infrastructure.db import SessionLocal, engine
+
+    with engine.begin() as conn:
+        conn.execute(text("TRUNCATE sensor_readings, locations, zones, devices CASCADE"))
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
