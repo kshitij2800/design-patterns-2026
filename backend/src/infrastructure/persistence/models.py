@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, Numeric, String, text
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, Numeric, String, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from infrastructure.db import Base
@@ -129,3 +129,29 @@ class ReadingRow(Base):
             text("recorded_at DESC"),
         ),
     ) 
+class AutomationRuleRow(Base):
+    __tablename__ = "automation_rules"
+
+    id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    location_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey("locations.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    strategy_key: Mapped[str] = mapped_column(String(32), nullable=False)
+    parameters: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=text("now()"),
+    )
+
+    __table_args__ = (
+        # one active strategy per location
+        UniqueConstraint("location_id", name="uq_automation_rules_location_id"),
+    )
+    
