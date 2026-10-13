@@ -238,3 +238,38 @@ export async function updateSampling(
   if (!res.ok) throw await readError(res, "Could not update sampling.");
   return res.json();
 }
+
+export const STRATEGY_KEYS = ["conservative", "aggressive"] as const;
+
+export interface ZoneRecommendationDto {
+  zone_id: string;
+  zone_name: string;
+  action: string;
+  reason: string;
+  score: number | null;
+}
+
+export interface RecommendationDto {
+  location_id: string;
+  strategy_key: string;
+  action: string;
+  reason: string;
+  zones: ZoneRecommendationDto[];
+}
+
+export async function saveStrategy(locationId: string, strategyKey: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/locations/${locationId}/automation`, {
+    method: "PUT",
+    headers: JSON_HEADERS,
+    body: JSON.stringify({ strategy_key: strategyKey }),
+  });
+  if (!res.ok) throw await readError(res, "Could not save strategy.");
+}
+
+export async function evaluateAutomation(locationId: string): Promise<RecommendationDto> {
+  const res = await fetch(`${API_BASE}/api/locations/${locationId}/automation/evaluate`, {
+    method: "POST",
+  });
+  if (!res.ok) throw await readError(res, "Could not evaluate.");
+  return res.json();
+}

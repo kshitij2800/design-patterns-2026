@@ -2,9 +2,9 @@ import { useState } from "react";
 import SensorList from "../features/sensors/SensorList";
 import DeviceList from "../features/devices/DeviceList";
 import LocationConfigWizard from "../components/config/LocationConfigWizard";
+import StrategyPanel from "../features/automation/StrategyPanel";
 
 const placeholders = [
-  { id: "automation", label: "Automation" },
   { id: "overview", label: "Overview" },
   { id: "controls", label: "Controls" },
   { id: "events", label: "Events" },
@@ -29,6 +29,11 @@ export default function DashboardPage() {
       <div id="configuration" className="bg-white rounded-xl border border-slate-200 p-6 md:col-span-2">
         <h2 className="text-sm font-medium text-slate-500 mb-4">Configuration</h2>
         <LocationConfigWizard refreshKey={refreshKey} onChanged={bump} />
+      </div>
+
+      <div id="automation" className="bg-white rounded-xl border border-slate-200 p-6 md:col-span-2">
+        <h2 className="text-sm font-medium text-slate-500 mb-4">Automation</h2>
+        <StrategyPanel />
       </div>
 
       {placeholders.map((p) => (
