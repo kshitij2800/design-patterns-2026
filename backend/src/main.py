@@ -12,6 +12,7 @@ from infrastructure.settings import settings
 from interfaces.api.health import router as health_router
 from interfaces.api.sensors import router as sensors_router
 from interfaces.api.automation import router as automation_router
+from interfaces.api.overview import router as overview_router
 from interfaces.background.sampler_loop import run_sampler_forever
 
 
@@ -51,6 +52,7 @@ app.include_router(sensors_router)
 app.include_router(locations_router)
 app.include_router(devices_router)
 app.include_router(automation_router)
+app.include_router(overview_router)
 
 # Discovery root
 @app.get("/", include_in_schema=False)

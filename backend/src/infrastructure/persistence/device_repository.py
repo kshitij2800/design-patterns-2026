@@ -90,6 +90,21 @@ class DeviceRepository:
         self._session.refresh(row)
         return _row_to_device(row)
 
+        # ---- Phase 7 ----
+
+    def list_assigned_in_location(self, location_id: UUID) -> list[Device]:
+        """One query: devices with this location_id AND a zone (unassigned devices excluded)."""
+        rows = (
+            self._session.query(DeviceRow)
+            .filter(
+                DeviceRow.location_id == str(location_id),
+                DeviceRow.zone_id.is_not(None),
+            )
+            .order_by(DeviceRow.role, DeviceRow.display_name)
+            .all()
+        )
+        return [_row_to_device(row) for row in rows]
+
     def save_sensor(self, sensor) -> object:
         from domain.sensors.entity import Sensor
         row = DeviceRow(
