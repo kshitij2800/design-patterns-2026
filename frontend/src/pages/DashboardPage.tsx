@@ -3,9 +3,9 @@ import SensorList from "../features/sensors/SensorList";
 import DeviceList from "../features/devices/DeviceList";
 import LocationConfigWizard from "../components/config/LocationConfigWizard";
 import StrategyPanel from "../features/automation/StrategyPanel";
+import OverviewPanel from "../components/overview/OverviewPanel";
 
 const placeholders = [
-  { id: "overview", label: "Overview" },
   { id: "controls", label: "Controls" },
   { id: "events", label: "Events" },
 ];
@@ -16,6 +16,11 @@ export default function DashboardPage() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div id="overview" className="bg-white rounded-xl border border-slate-200 p-6 md:col-span-2 lg:col-span-3">
+      <h2 className="text-sm font-medium text-slate-500 mb-4">Overview</h2>
+      <OverviewPanel />
+    </div>
+    
       <div id="sensors" className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-sm font-medium text-slate-500 mb-4">Sensors</h2>
         <SensorList />

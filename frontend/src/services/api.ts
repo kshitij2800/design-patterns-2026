@@ -273,3 +273,42 @@ export async function evaluateAutomation(locationId: string): Promise<Recommenda
   if (!res.ok) throw await readError(res, "Could not evaluate.");
   return res.json();
 }
+
+export interface OverviewDeviceDto {
+  id: string;
+  device_type: string;
+  role: string; // "sensor" | "actuator"
+  display_name: string;
+}
+
+export interface OverviewReadingDto {
+  device_id: string;
+  value: number;
+  unit: string;
+  recorded_at: string;
+  tracking_enabled: boolean;
+  sampling_interval_seconds: number;
+}
+
+export interface OverviewZoneDto {
+  id: string;
+  name: string;
+  moisture_threshold_low: number;
+  moisture_threshold_high: number;
+  devices: OverviewDeviceDto[];
+  latest_readings: OverviewReadingDto[];
+}
+
+export interface LocationOverviewDto {
+  location: LocationSummaryDto;
+  device_counts: { sensor: number; actuator: number };
+  zones: OverviewZoneDto[];
+  strategy_key: string | null;
+  last_recommendation: { action: string; reason: string } | null;
+}
+
+export async function fetchOverview(locationId: string): Promise<LocationOverviewDto> {
+  const res = await fetch(`${API_BASE}/api/locations/${locationId}/overview`);
+  if (!res.ok) throw await readError(res, "Could not load overview.");
+  return res.json();
+}
