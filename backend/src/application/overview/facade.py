@@ -62,16 +62,13 @@ class LocationOverviewFacade:
         location_row, zone_rows = config
         zone_ids = {UUID(z.id) for z in zone_rows}
 
-        # 2. One query: devices assigned to this location (zone_id not null)
         assigned = [
             d for d in self._devices.list_assigned_in_location(location_id)
             if d.zone_id in zone_ids
         ]
 
-        # 3. One query: newest reading for each of those devices (any source)
         latest = self._readings.latest_for_devices([d.id for d in assigned])
 
-        # 4. Saved strategy; 5. evaluate only when a key is saved
         strategy_key = self._automation_repo.get_strategy_key(location_id)
         last_recommendation = None
         if strategy_key is not None:
@@ -98,7 +95,7 @@ class LocationOverviewFacade:
                     latest_readings=[
                         _reading_dto(d, latest[d.id])
                         for d in by_zone[UUID(z.id)]
-                        if d.id in latest            # no row -> left out
+                        if d.id in latest           
                     ],
                 )
                 for z in zone_rows
@@ -123,6 +120,6 @@ def _reading_dto(device: Device, reading: Reading) -> OverviewReadingDto:
         value=reading.value,
         unit=reading.unit,
         recorded_at=reading.recorded_at,
-        tracking_enabled=device.tracking_enabled,                    # from the device
-        sampling_interval_seconds=device.sampling_interval_seconds,  # from the device
+        tracking_enabled=device.tracking_enabled,                   
+        sampling_interval_seconds=device.sampling_interval_seconds, 
     )
