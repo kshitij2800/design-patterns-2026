@@ -154,4 +154,18 @@ class AutomationRuleRow(Base):
         # one active strategy per location
         UniqueConstraint("location_id", name="uq_automation_rules_location_id"),
     )
-    
+
+class ActuatorStateRow(Base):
+    __tablename__ = "actuator_states"
+
+    device_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey("devices.id"),
+        primary_key=True,
+    )
+    state: Mapped[str] = mapped_column(String(32), nullable=False, server_default=text("'idle'"))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=text("now()"),
+    )
