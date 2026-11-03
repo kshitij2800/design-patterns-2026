@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ActuatorStateBadge from "./ActuatorStateBadge";
 import {
   assignDeviceZone,
   fetchDevices,
@@ -9,6 +10,7 @@ import {
   type DeviceFamily,
 } from "../../services/api";
 import DeviceFamilySwitcher from "./DeviceFamilySwitcher";
+
 
 type ZoneGroup = {
   locationId: string;
@@ -118,8 +120,10 @@ export default function DeviceList({ refreshKey, onChanged }: Props) {
               {d.role}
             </span>
             <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-600">
-              {d.device_family}
+            {d.device_family}
             </span>
+             {d.role === "actuator" && d.state && (
+            <ActuatorStateBadge state={d.state} allowedCommands={d.allowed_commands} /> )}
           </div>
           <div className="text-gray-500">{d.device_type}</div>
           <div className="text-gray-400 text-xs font-mono">
