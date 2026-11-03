@@ -1,4 +1,4 @@
-# State Pattern — Actuator Lifecycle (Phase 8)
+# State Pattern — Actuator Lifecycle (Phase 8) 
 
 ## Problem: an actuator's legal actions depend on what it's doing
 
