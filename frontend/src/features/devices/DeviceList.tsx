@@ -123,7 +123,7 @@ export default function DeviceList({ refreshKey, onChanged }: Props) {
             {d.device_family}
             </span>
              {d.role === "actuator" && d.state && (
-            <ActuatorStateBadge state={d.state} allowedCommands={d.allowed_commands} /> )}
+            <ActuatorStateBadge state={d.state} allowedCommands={d.allowed_commands} />)}
           </div>
           <div className="text-gray-500">{d.device_type}</div>
           <div className="text-gray-400 text-xs font-mono">
