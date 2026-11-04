@@ -62,6 +62,8 @@ export interface DeviceDto {
   device_family: string;
   display_name: string;
   default_config: Record<string, unknown>;
+  state: string | null;
+  allowed_commands: string[];
   zone_id: string | null;
   location_id: string | null;
 }
