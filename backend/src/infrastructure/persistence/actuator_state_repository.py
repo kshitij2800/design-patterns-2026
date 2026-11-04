@@ -24,6 +24,10 @@ class ActuatorStateRepository:
         )
         return {UUID(r.device_id): r.state for r in rows}
 
+    def get_row(self, device_id: UUID) -> ActuatorStateRow | None:
+        return self._session.get(ActuatorStateRow, str(device_id))
+ 
+
     def save_state(self, device_id: UUID, state: str) -> None:
         row = self._session.get(ActuatorStateRow, str(device_id))
         if row is None:
