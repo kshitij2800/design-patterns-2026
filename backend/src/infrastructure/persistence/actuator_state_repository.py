@@ -1,6 +1,6 @@
 from __future__ import annotations
 from uuid import UUID
-
+from datetime import datetime, timezone 
 from sqlalchemy.orm import Session
 
 from infrastructure.persistence.models import ActuatorStateRow
@@ -31,4 +31,5 @@ class ActuatorStateRepository:
             self._session.add(row)
         else:
             row.state = state
+            row.updated_at = datetime.now(timezone.utc)
         self._session.commit()
