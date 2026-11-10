@@ -4,9 +4,10 @@ import DeviceList from "../features/devices/DeviceList";
 import LocationConfigWizard from "../components/config/LocationConfigWizard";
 import StrategyPanel from "../features/automation/StrategyPanel";
 import OverviewPanel from "../components/overview/OverviewPanel";
+import ExecutionLog from "../features/actuators/ExecutionLog";
 
 const placeholders = [
-  { id: "controls", label: "Controls" },
+
   { id: "events", label: "Events" },
 ];
 
@@ -29,6 +30,11 @@ export default function DashboardPage() {
       <div id="devices" className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-sm font-medium text-slate-500 mb-4">Devices</h2>
         <DeviceList refreshKey={refreshKey} onChanged={bump} />
+      </div>
+
+      <div id="executions" className="bg-white rounded-xl border border-slate-200 p-6 md:col-span-2 lg:col-span-3">
+        <h2 className="text-sm font-medium text-slate-500 mb-4">Execution Log</h2>
+        <ExecutionLog />
       </div>
 
       <div id="configuration" className="bg-white rounded-xl border border-slate-200 p-6 md:col-span-2">

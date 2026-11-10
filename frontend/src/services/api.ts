@@ -314,3 +314,18 @@ export async function fetchOverview(locationId: string): Promise<LocationOvervie
   if (!res.ok) throw await readError(res, "Could not load overview.");
   return res.json();
 }
+
+export interface ExecutionDto {
+  id: string;
+  device_id: string;
+  success: boolean;
+  policy_applied: string[];
+  message: string | null;
+  created_at: string;
+}
+
+export async function fetchExecutions(limit = 20): Promise<ExecutionDto[]> {
+  const res = await fetch(`${API_BASE}/api/actuators/executions?limit=${limit}`);
+  if (!res.ok) throw await readError(res, "Could not load execution log.");
+  return res.json();
+}
