@@ -329,3 +329,39 @@ export async function fetchExecutions(limit = 20): Promise<ExecutionDto[]> {
   if (!res.ok) throw await readError(res, "Could not load execution log.");
   return res.json();
 }
+
+// ---- Phase 10: commands ----
+
+export const COMMAND_TYPES = ["start_pump", "stop_pump", "set_light_level"] as const;
+export type CommandType = (typeof COMMAND_TYPES)[number];
+
+export interface CommandLogDto {
+  id: string;
+  command_type: string;
+  device_id: string;
+  payload: Record<string, unknown>;
+  status: "success" | "failed" | "rejected";
+  error_message: string | null;
+  created_at: string;
+}
+
+// 200 (success/failed) and 409 (rejected) both return a log row, so both resolve.
+export async function sendCommand(
+  commandType: CommandType,
+  deviceId: string,
+  payload: Record<string, unknown> = {}
+): Promise<CommandLogDto> {
+  const res = await fetch(`${API_BASE}/api/commands`, {
+    method: "POST",
+    headers: JSON_HEADERS,
+    body: JSON.stringify({ command_type: commandType, device_id: deviceId, payload }),
+  });
+  if (res.ok || res.status === 409) return res.json();
+  throw await readError(res, "Could not send command.");
+}
+
+export async function fetchCommands(limit = 50): Promise<CommandLogDto[]> {
+  const res = await fetch(`${API_BASE}/api/commands?limit=${limit}`);
+  if (!res.ok) throw await readError(res, "Could not load command history.");
+  return res.json();
+}
