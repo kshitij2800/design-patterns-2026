@@ -195,3 +195,25 @@ class ActuatorExecutionLogRow(Base):
             text("created_at DESC"),
         ),
     )
+    
+class CommandLogRow(Base):
+    __tablename__ = "command_log"
+
+    id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    command_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    device_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("devices.id"), nullable=False
+    )
+    payload: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default=text("'{}'"))
+    status: Mapped[str] = mapped_column(String(16), nullable=False)  # success | failed | rejected
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=text("now()")
+    )
+
+    __table_args__ = (
+        # GET /api/commands = ORDER BY created_at DESC LIMIT n
+        Index("ix_command_log_created_at", text("created_at DESC")),
+    )
