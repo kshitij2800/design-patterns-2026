@@ -31,7 +31,7 @@ component. Otherwise it calls through.
 `LoggingActuatorDecorator`, as the outermost layer, wraps that call in a try/except:
 
 - clean success → insert a row (`success=true, policy_applied=["logging"], message=null`)
-- `PolicyBlockedError` → insert a row (`success=false, policy_applied=[policy_name, "logging"], message=...`) and stop — the block *is* the outcome, nothing to re-raise
+- `PolicyBlockedError` → insert a row (`success=false, policy_applied=[policy_name, "logging"], message=...`), then re-raise (since Phase 10, so the command service can log the attempt as `failed`)
 - any other exception → insert a failure row, then re-raise (a real adapter error shouldn't be swallowed)
 
 Only policies that actually *did* something appear in `policy_applied`. Logging

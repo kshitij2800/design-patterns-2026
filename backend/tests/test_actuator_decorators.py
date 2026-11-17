@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
+import pytest
 
 from domain.actuators.errors import PolicyBlockedError
 from domain.devices.entity import Device
@@ -60,8 +61,9 @@ def test_failed_policy_writes_execution_row(db_session):
         MaxRunTimeActuatorDecorator(SimulationActuatorAdapter(), FakeStateRepo(FakeStateRow("running", old))),
         log_repo,
     )
-    chain.apply(device.id, "start_pump", {})
-
+    with pytest.raises(PolicyBlockedError):     # Phase 10: logged, then re-raised
+        chain.apply(device.id, "start_pump", {})
+        
     row = log_repo.list_recent(1)[0]
     assert row.success is False
     assert row.policy_applied == ["maxRunTime", "logging"]

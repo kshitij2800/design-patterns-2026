@@ -27,8 +27,8 @@ def test_legal_transition_persists(client):
     r = client.post(f"/api/devices/{actuator_id}/transition", json={"target": "running"})
     assert r.status_code == 200, r.text
     assert r.json()["state"] == "running"
-    assert r.json()["allowed_commands"] == ["stop_pump"]
-
+    assert r.json()["allowed_commands"] == ["stop_pump", "set_light_level"]
+    
     device = next(d for d in client.get("/api/devices").json() if d["id"] == actuator_id)
     assert device["state"] == "running"
 

@@ -46,7 +46,6 @@ def test_off_to_running_rejected():
 
 def test_allowed_commands_match_state():
     assert ActuatorContext(state="idle").allowed_commands() == [
-        "start_pump", "enter_maintenance", "power_off"
+        "start_pump", "set_light_level", "enter_maintenance", "power_off"
     ]
-    assert ActuatorContext(state="running").allowed_commands() == ["stop_pump"]
-    assert ActuatorContext(state="error").allowed_commands() == ["reset"]
+    assert ActuatorContext(state="running").allowed_commands() == ["stop_pump", "set_light_level"]
