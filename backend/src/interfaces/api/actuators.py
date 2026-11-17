@@ -1,10 +1,10 @@
 from __future__ import annotations
-from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from application.actuators.dto import ApplyCommandDto, ExecutionDto
+from application.actuators.dto import ExecutionDto
 from application.actuators.service import ActuatorCommandService
+from domain.actuators.ports import ActuatorPort
 from infrastructure.adapters.actuators.logging_decorator import LoggingActuatorDecorator
 from infrastructure.adapters.actuators.max_runtime_decorator import MaxRunTimeActuatorDecorator
 from infrastructure.adapters.actuators.simulation import SimulationActuatorAdapter
@@ -15,25 +15,17 @@ from infrastructure.persistence.execution_log_repository import ExecutionLogRepo
 router = APIRouter(prefix="/api/actuators", tags=["actuators"])
 
 
-def get_service(db: Session = Depends(get_db)) -> ActuatorCommandService:
-    log_repo = ExecutionLogRepository(db)
-    states = ActuatorStateRepository(db)
+def build_actuator_port(db: Session) -> ActuatorPort:
     # Composition order: logging (outermost) -> max-run-time -> simulation (innermost)
     core = SimulationActuatorAdapter()
-    guarded = MaxRunTimeActuatorDecorator(core, states)
-    decorated = LoggingActuatorDecorator(guarded, log_repo)
-    return ActuatorCommandService(decorated, log_repo)
+    guarded = MaxRunTimeActuatorDecorator(core, ActuatorStateRepository(db))
+    return LoggingActuatorDecorator(guarded, ExecutionLogRepository(db))
+
+
+def get_service(db: Session = Depends(get_db)) -> ActuatorCommandService:
+    return ActuatorCommandService(build_actuator_port(db), ExecutionLogRepository(db))
 
 
 @router.get("/executions", response_model=list[ExecutionDto])
 def list_executions(limit: int = 20, service: ActuatorCommandService = Depends(get_service)):
     return service.list_recent(limit)
-
-
-# Demo only — Phase 10 (Command) replaces this with the real command route.
-@router.post("/{device_id}/apply", status_code=202)
-def apply_demo(
-    device_id: UUID, body: ApplyCommandDto, service: ActuatorCommandService = Depends(get_service)
-):
-    service.apply(device_id, body.command, body.payload)
-    return {"status": "accepted"}

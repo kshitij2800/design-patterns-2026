@@ -23,8 +23,7 @@ class LoggingActuatorDecorator(ActuatorPort):
                 policy_applied=[e.policy_name, "logging"],
                 message=e.message,
             )
-            return   # the block IS the outcome — nothing further to raise
-        except Exception as e:
+            raise    # Phase 10: let the caller (command service) record it as 'failed'        except Exception as e:
             self._log_repo.insert(
                 device_id=device_id, success=False, policy_applied=["logging"], message=str(e)
             )

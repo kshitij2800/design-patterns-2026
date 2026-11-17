@@ -17,8 +17,8 @@ TRANSITIONS: dict[str, set[str]] = {
 # Commands available in each state. Reused by Phase 10 Command.
 ALLOWED_COMMANDS: dict[str, list[str]] = {
     "off": ["power_on"],
-    "idle": ["start_pump", "enter_maintenance", "power_off"],
-    "running": ["stop_pump"],
+    "idle": ["start_pump", "set_light_level", "enter_maintenance", "power_off"],
+    "running": ["stop_pump", "set_light_level"],
     "maintenance": ["exit_maintenance"],
     "error": ["reset"],
 }
