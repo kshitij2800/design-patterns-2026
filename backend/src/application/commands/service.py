@@ -9,6 +9,8 @@ from domain.commands.invoker import CommandInvoker, command_for
 from infrastructure.persistence.actuator_state_repository import ActuatorStateRepository
 from infrastructure.persistence.command_log_repository import CommandLogRepository
 from infrastructure.persistence.device_repository import DeviceRepository
+from domain.events.bus import EventBus
+from domain.events.events import ActuatorStateChanged, CommandFailed 
 
 
 class CommandRejectedError(Exception):
@@ -28,12 +30,14 @@ class CommandService:
         states: ActuatorStateRepository,
         command_log: CommandLogRepository,
         port: ActuatorPort,              # the Phase 9 decorator stack
+        bus: EventBus,                    # for publishing ActuatorStateChanged and CommandFailed
         invoker: CommandInvoker | None = None,
     ) -> None:
         self._devices = devices
         self._states = states
         self._log = command_log
         self._port = port
+        self._bus = bus 
         self._invoker = invoker or CommandInvoker()
 
     def execute(self, req: CommandRequestDto) -> CommandLogDto:
@@ -52,18 +56,22 @@ class CommandService:
                                 f"'{command.command_type}' is not allowed in state '{ctx.state}'")
             raise CommandRejectedError(row)
 
+
         # 4. Execute through the decorated port; a policy block is a 'failed' attempt
         try:
             self._invoker.run(command, self._port)
         except PolicyBlockedError as e:
-            return self._log_row(command, "failed", e.message)   # actuator_states untouched
+            row = self._log_row(command, "failed", e.message)   # actuator_states untouched
+            self._bus.publish(CommandFailed.for_device(device, command.command_type, e.message))
+            return row
 
         # 5. Transition only when the target differs (light already running -> no transition)
-        if command.target_state != ctx.state:
+        if command.target_state is not None and command.target_state != ctx.state:
             ctx.transition(command.target_state)
             self._states.save_state(req.device_id, ctx.state)
+            self._bus.publish(ActuatorStateChanged.for_device(device, ctx.state))
         return self._log_row(command, "success")
-
+    
     def list_history(self, limit: int = 50) -> list[CommandLogDto]:
         return self._log.list_recent(limit)
 

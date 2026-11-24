@@ -8,6 +8,7 @@ from infrastructure.adapters.sensors.mqtt import MqttSensorAdapter
 from infrastructure.adapters.sensors.selector import select_sensor_adapter
 from infrastructure.persistence.device_repository import DeviceRepository
 from infrastructure.persistence.reading_repository import ReadingRepository
+from application.alerts.subscribers import build_event_bus 
 
 T0 = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
 
@@ -26,7 +27,7 @@ def sensor(protocol: str, name: str) -> Device:
 def build(db_session):
     devices = DeviceRepository(db_session)
     readings = ReadingRepository(db_session)
-    ingest = ReadingIngest(devices, readings, select_sensor_adapter)
+    ingest = ReadingIngest(devices, readings, select_sensor_adapter, build_event_bus(db_session))  
     sampler = SimulationSampler(devices, readings, ingest, select_sensor_adapter)
     return devices, readings, ingest, sampler
 

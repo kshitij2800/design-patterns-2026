@@ -12,6 +12,7 @@ from infrastructure.adapters.sensors.selector import select_sensor_adapter
 from infrastructure.db import get_db
 from infrastructure.persistence.device_repository import DeviceRepository
 from infrastructure.persistence.reading_repository import ReadingRepository
+from application.alerts.subscribers import build_event_bus
 
 router = APIRouter(prefix="/api/sensors", tags=["sensors"])
 
@@ -62,8 +63,9 @@ def create_sensor(body: CreateSensorRequest, service: SensorService = Depends(ge
 # ---- Phase 5: readings ----
 
 def get_ingest(db: Session = Depends(get_db)) -> ReadingIngest:
-    return ReadingIngest(DeviceRepository(db), ReadingRepository(db), select_sensor_adapter)
-
+    return ReadingIngest(
+        DeviceRepository(db), ReadingRepository(db), select_sensor_adapter, build_event_bus(db)
+    )
 
 @router.post("/{sensor_id}/read", response_model=ReadingDto, status_code=201)
 def read_sensor(sensor_id: UUID, ingest: ReadingIngest = Depends(get_ingest)):

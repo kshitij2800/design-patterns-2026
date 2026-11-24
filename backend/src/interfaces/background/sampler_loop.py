@@ -13,6 +13,7 @@ from infrastructure.adapters.sensors.selector import select_sensor_adapter
 from infrastructure.db import SessionLocal
 from infrastructure.persistence.device_repository import DeviceRepository
 from infrastructure.persistence.reading_repository import ReadingRepository
+from application.alerts.subscribers import build_event_bus
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ def _tick() -> None:
     try:
         devices = DeviceRepository(session)
         readings = ReadingRepository(session)
-        ingest = ReadingIngest(devices, readings, select_sensor_adapter)
+        ingest = ReadingIngest(devices, readings, select_sensor_adapter, build_event_bus(session))     
         sampler = SimulationSampler(devices, readings, ingest, select_sensor_adapter)
         sampler.run_once(datetime.now(timezone.utc))
     finally:

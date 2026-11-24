@@ -21,6 +21,7 @@ from application.readings.dto import SamplingDto, SamplingUpdateDto
 from application.readings.errors import DeviceNotFoundError as SamplingDeviceNotFoundError
 from domain.devices.sampling import InvalidSamplingIntervalError
 from application.locations.dto import ZoneAssignmentRequestDto
+from application.alerts.subscribers import build_event_bus
 from application.locations.zone_assignment_service import (
     ZoneAssignmentService,
     DeviceNotFoundError,
@@ -104,8 +105,7 @@ def update_sampling(
         raise HTTPException(status_code=404, detail="Device not found")
 
 def get_actuator_state_service(db: Session = Depends(get_db)) -> ActuatorStateService:
-    return ActuatorStateService(DeviceRepository(db), ActuatorStateRepository(db))
-
+    return ActuatorStateService(DeviceRepository(db), ActuatorStateRepository(db), build_event_bus(db))
 
 @router.post("/{device_id}/transition", response_model=ActuatorStateDto)
 def transition_device(

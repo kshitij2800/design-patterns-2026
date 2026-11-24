@@ -14,6 +14,7 @@ from infrastructure.persistence.actuator_state_repository import ActuatorStateRe
 from infrastructure.persistence.command_log_repository import CommandLogRepository
 from infrastructure.persistence.device_repository import DeviceRepository
 from interfaces.api.actuators import build_actuator_port
+from application.alerts.subscribers import build_event_bus 
 
 router = APIRouter(prefix="/api/commands", tags=["commands"])
 
@@ -24,6 +25,7 @@ def get_service(db: Session = Depends(get_db)) -> CommandService:
         ActuatorStateRepository(db),
         CommandLogRepository(db),
         build_actuator_port(db),
+        build_event_bus(db), 
     )
 
 
