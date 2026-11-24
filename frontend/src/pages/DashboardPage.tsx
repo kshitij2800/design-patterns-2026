@@ -6,11 +6,7 @@ import StrategyPanel from "../features/automation/StrategyPanel";
 import OverviewPanel from "../components/overview/OverviewPanel";
 import ExecutionLog from "../features/actuators/ExecutionLog";
 import CommandPanel from "../components/commands/CommandPanel";
-
-const placeholders = [
-
-  { id: "events", label: "Events" },
-];
+import EventFeed from "../components/alerts/EventFeed";
 
 export default function DashboardPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -19,10 +15,10 @@ export default function DashboardPage() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div id="overview" className="bg-white rounded-xl border border-slate-200 p-6 md:col-span-2 lg:col-span-3">
-      <h2 className="text-sm font-medium text-slate-500 mb-4">Overview</h2>
-      <OverviewPanel />
-    </div>
-    
+        <h2 className="text-sm font-medium text-slate-500 mb-4">Overview</h2>
+        <OverviewPanel />
+      </div>
+
       <div id="sensors" className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-sm font-medium text-slate-500 mb-4">Sensors</h2>
         <SensorList />
@@ -43,6 +39,11 @@ export default function DashboardPage() {
         <ExecutionLog />
       </div>
 
+      <div id="events" className="bg-white rounded-xl border border-slate-200 p-6 md:col-span-2 lg:col-span-3">
+        <h2 className="text-sm font-medium text-slate-500 mb-4">Events</h2>
+        <EventFeed />
+      </div>
+
       <div id="configuration" className="bg-white rounded-xl border border-slate-200 p-6 md:col-span-2">
         <h2 className="text-sm font-medium text-slate-500 mb-4">Configuration</h2>
         <LocationConfigWizard refreshKey={refreshKey} onChanged={bump} />
@@ -52,13 +53,6 @@ export default function DashboardPage() {
         <h2 className="text-sm font-medium text-slate-500 mb-4">Automation</h2>
         <StrategyPanel />
       </div>
-
-      {placeholders.map((p) => (
-        <div key={p.id} id={p.id} className="bg-white rounded-xl border border-slate-200 p-6">
-          <h2 className="text-sm font-medium text-slate-500 mb-2">{p.label}</h2>
-          <p className="text-slate-400 text-sm">Coming in a later phase</p>
-        </div>
-      ))}
     </div>
   );
 }

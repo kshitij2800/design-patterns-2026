@@ -365,3 +365,38 @@ export async function fetchCommands(limit = 50): Promise<CommandLogDto[]> {
   if (!res.ok) throw await readError(res, "Could not load command history.");
   return res.json();
 }
+
+// ---- Phase 11: alerts (event feed) ----
+
+export interface AlertDto {
+  id: string;
+  location_id: string | null;
+  zone_id: string | null;
+  device_id: string | null;
+  severity: "info" | "warning" | "critical";
+  message: string;
+  event_type: string; // "threshold.crossed" | "command.failed" | "state.changed"
+  status: "active" | "resolved";
+  created_at: string;
+}
+
+export interface AlertFilters {
+  status?: "active" | "resolved" | "all";
+  locationId?: string;
+  zoneId?: string;
+  since?: string;
+  limit?: number;
+}
+
+export async function fetchAlerts(filters: AlertFilters = {}): Promise<AlertDto[]> {
+  const params = new URLSearchParams();
+  if (filters.status) params.set("status", filters.status);
+  if (filters.locationId) params.set("location_id", filters.locationId);
+  if (filters.zoneId) params.set("zone_id", filters.zoneId);
+  if (filters.since) params.set("since", filters.since);
+  if (filters.limit) params.set("limit", String(filters.limit));
+  const query = params.toString();
+  const res = await fetch(`${API_BASE}/api/alerts${query ? `?${query}` : ""}`);
+  if (!res.ok) throw await readError(res, "Could not load alerts.");
+  return res.json();
+}
