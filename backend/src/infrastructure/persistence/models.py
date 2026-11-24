@@ -217,3 +217,35 @@ class CommandLogRow(Base):
         # GET /api/commands = ORDER BY created_at DESC LIMIT n
         Index("ix_command_log_created_at", text("created_at DESC")),
     )
+
+class AlertRow(Base):
+    __tablename__ = "alerts"
+
+    id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False), primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    # All three FKs are nullable and SET NULL: an alert outlives the thing it was about.
+    location_id: Mapped[str | None] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("locations.id", ondelete="SET NULL"), nullable=True
+    )
+    zone_id: Mapped[str | None] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("zones.id", ondelete="SET NULL"), nullable=True
+    )
+    device_id: Mapped[str | None] = mapped_column(
+        UUID(as_uuid=False), ForeignKey("devices.id", ondelete="SET NULL"), nullable=True
+    )
+    severity: Mapped[str] = mapped_column(String(16), nullable=False)    # info | warning | critical
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    event_type: Mapped[str] = mapped_column(String(64), nullable=False)  # threshold.crossed | command.failed | state.changed
+    status: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default=text("'active'")      # active | resolved
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=text("now()")
+    )
+    acknowledged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        # GET /api/alerts = ORDER BY created_at DESC LIMIT n
+        Index("ix_alerts_created_at", text("created_at DESC")),
+    )
